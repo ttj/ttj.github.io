@@ -14,27 +14,54 @@ class BibtexParser {
     parse(bibtexString) {
         this.entries = [];
 
-        // Remove @STRING definitions and comments
-        const cleanedString = bibtexString
-            .replace(/@STRING\{[^}]+\}/g, '')
-            .replace(/%[^\n]*/g, '');
+        // Remove comments (lines starting with %)
+        const cleanedString = bibtexString.replace(/%[^\n]*/g, '');
 
-        // Match all BibTeX entries
-        const entryRegex = /@(\w+)\{([^,]+),\s*([\s\S]*?)\n\}/g;
+        // Find all entry starts
+        const entryStarts = [];
+        const entryStartRegex = /@(\w+)\{([^,]+),/g;
         let match;
 
-        while ((match = entryRegex.exec(cleanedString)) !== null) {
-            const [, type, key, fields] = match;
+        while ((match = entryStartRegex.exec(cleanedString)) !== null) {
+            if (match[1].toLowerCase() !== 'string') {
+                entryStarts.push({
+                    index: match.index,
+                    type: match[1],
+                    key: match[2].trim(),
+                    afterComma: match.index + match[0].length
+                });
+            }
+        }
 
-            if (type.toLowerCase() === 'string') continue;
+        // For each entry, find its closing brace by counting braces
+        for (const start of entryStarts) {
+            // Find the opening brace of the entry
+            const openBraceIndex = cleanedString.indexOf('{', start.index);
+            let braceCount = 1;
+            let i = openBraceIndex + 1;
 
-            const entry = {
-                type: type.toLowerCase(),
-                key: key.trim(),
-                fields: this.parseFields(fields)
-            };
+            // Count braces to find the matching closing brace
+            while (i < cleanedString.length && braceCount > 0) {
+                if (cleanedString[i] === '{') {
+                    braceCount++;
+                } else if (cleanedString[i] === '}') {
+                    braceCount--;
+                }
+                i++;
+            }
 
-            this.entries.push(entry);
+            if (braceCount === 0) {
+                // Extract fields string (everything after the key and comma, before closing brace)
+                const fieldsString = cleanedString.substring(start.afterComma, i - 1);
+
+                const entry = {
+                    type: start.type.toLowerCase(),
+                    key: start.key,
+                    fields: this.parseFields(fieldsString)
+                };
+
+                this.entries.push(entry);
+            }
         }
 
         return this.entries;
@@ -45,13 +72,16 @@ class BibtexParser {
      */
     parseFields(fieldsString) {
         const fields = {};
-        const fieldRegex = /(\w+)\s*=\s*\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}|(\w+)\s*=\s*"([^"]*)"/g;
+        // Updated regex to better handle nested braces and quoted values
+        const fieldRegex = /(\w+)\s*=\s*\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}|(\w+)\s*=\s*"([^"]*)"|(\w+)\s*=\s*([^,\s]+)/g;
         let match;
 
         while ((match = fieldRegex.exec(fieldsString)) !== null) {
-            const fieldName = (match[1] || match[3]).toLowerCase();
-            const fieldValue = (match[2] || match[4]).trim();
-            fields[fieldName] = fieldValue;
+            const fieldName = (match[1] || match[3] || match[5]).toLowerCase();
+            const fieldValue = (match[2] || match[4] || match[6]);
+            if (fieldValue !== undefined) {
+                fields[fieldName] = fieldValue.trim();
+            }
         }
 
         return fields;
