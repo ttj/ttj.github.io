@@ -201,6 +201,29 @@ main {
     left: 0;
 }
 
+.research-projects {
+    list-style: none;
+    padding-left: 0;
+}
+
+.research-projects li {
+    padding: 1rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 1rem;
+    color: var(--text-light);
+    border-bottom: 1px solid var(--bg-light);
+    line-height: 1.7;
+}
+
+.research-projects li:before {
+    content: "→";
+    color: var(--primary-color);
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
 /* Publications */
 #publications-container {
     margin-top: 2rem;
