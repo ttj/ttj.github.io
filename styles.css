@@ -166,6 +166,7 @@ main {
     height: 200px;
     border-radius: 50%;
     object-fit: cover;
+    object-position: center 20%;
     border: 4px solid var(--primary-color);
     box-shadow: var(--shadow);
     transition: var(--transition);

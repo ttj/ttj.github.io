@@ -472,14 +472,20 @@
 
     <script src="script.js"></script>
     <script src="bibtex-parser.js"></script>
+    <script src="publicationsRenderer.js"></script>
     <script>
         // Load and parse the BibTeX file
         fetch('johnson_taylor_t.bib')
             .then(response => response.text())
             .then(bibtexData => {
+                // Parse BibTeX to JSON
                 const parser = new BibtexParser();
-                parser.parse(bibtexData);
-                parser.renderByYear('publications-container');
+                const entries = parser.parse(bibtexData);
+                console.log('Parsed', entries.length, 'BibTeX entries');
+
+                // Render publications
+                const renderer = new PublicationsRenderer(entries);
+                renderer.renderToContainer('publications-container');
             })
             .catch(error => {
                 console.error('Error loading BibTeX file:', error);
