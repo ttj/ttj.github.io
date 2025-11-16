@@ -224,10 +224,21 @@ class BibtexParser {
         const grouped = this.groupByYear();
         const years = Object.keys(grouped).sort((a, b) => b - a);
 
-        let html = '';
-        years.forEach(year => {
-            html += `<h3 class="pub-year">${year}</h3>`;
-            html += '<div class="pub-year-group">';
+        // Add controls
+        let html = '<div class="publications-controls">';
+        html += '<button id="expand-all-btn">Expand All Years</button>';
+        html += '<button id="collapse-all-btn">Collapse All Years</button>';
+        html += '</div>';
+
+        // Render each year group
+        years.forEach((year, index) => {
+            // Only show first 2 years by default (collapsed state for others)
+            const isCollapsed = index >= 2;
+            const yearClass = isCollapsed ? 'pub-year collapsed' : 'pub-year';
+            const groupClass = isCollapsed ? 'pub-year-group collapsed' : 'pub-year-group';
+
+            html += `<h3 class="${yearClass}" data-year="${year}">${year}</h3>`;
+            html += `<div class="${groupClass}" data-year="${year}">`;
 
             grouped[year].forEach(entry => {
                 html += this.renderEntry(entry);
@@ -237,5 +248,47 @@ class BibtexParser {
         });
 
         container.innerHTML = html;
+
+        // Add event listeners for collapsing/expanding
+        this.addYearToggleListeners();
     }
+
+    /**
+     * Add event listeners for year toggling
+     */
+    addYearToggleListeners() {
+        // Toggle individual years
+        document.querySelectorAll('.pub-year').forEach(yearHeader => {
+            yearHeader.addEventListener('click', function() {
+                const year = this.getAttribute('data-year');
+                const group = document.querySelector(`.pub-year-group[data-year="${year}"]`);
+
+                this.classList.toggle('collapsed');
+                group.classList.toggle('collapsed');
+            });
+        });
+
+        // Expand all button
+        const expandBtn = document.getElementById('expand-all-btn');
+        if (expandBtn) {
+            expandBtn.addEventListener('click', function() {
+                document.querySelectorAll('.pub-year').forEach(el => el.classList.remove('collapsed'));
+                document.querySelectorAll('.pub-year-group').forEach(el => el.classList.remove('collapsed'));
+            });
+        }
+
+        // Collapse all button
+        const collapseBtn = document.getElementById('collapse-all-btn');
+        if (collapseBtn) {
+            collapseBtn.addEventListener('click', function() {
+                document.querySelectorAll('.pub-year').forEach(el => el.classList.add('collapsed'));
+                document.querySelectorAll('.pub-year-group').forEach(el => el.classList.add('collapsed'));
+            });
+        }
+    }
+}
+
+// Export for Node.js testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = BibtexParser;
 }
