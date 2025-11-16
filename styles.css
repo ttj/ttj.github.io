@@ -116,14 +116,14 @@ main {
 }
 
 .section h3 {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     color: var(--text-color);
     margin-top: 2rem;
     margin-bottom: 1rem;
 }
 
 .section h4 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     color: var(--text-color);
     margin-top: 1.5rem;
     margin-bottom: 0.8rem;
@@ -132,7 +132,19 @@ main {
 .section p {
     margin-bottom: 1rem;
     color: var(--text-light);
-    font-size: 1.1rem;
+    font-size: 1.05rem;
+    line-height: 1.8;
+}
+
+.section a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.section a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
 }
 
 /* About Section */
@@ -144,33 +156,19 @@ main {
     margin-top: 2rem;
 }
 
-.profile-section {
-    margin-bottom: 2rem;
-}
-
-.profile-info h3 {
-    font-size: 2rem;
-    color: var(--primary-color);
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-}
-
-.profile-info .title {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--text-color);
-    margin-bottom: 0.3rem;
-}
-
-.profile-info .affiliation {
-    font-size: 1.1rem;
-    color: var(--text-light);
-    margin-bottom: 0.2rem;
-}
-
 .bio p {
-    line-height: 1.8;
-    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    text-align: justify;
+}
+
+.locations {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--bg-light);
+}
+
+.locations h3 {
+    margin-top: 1.5rem;
 }
 
 /* Research Section */
@@ -191,7 +189,7 @@ main {
     padding: 0.8rem 0;
     padding-left: 2rem;
     position: relative;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     color: var(--text-light);
 }
 
@@ -203,14 +201,71 @@ main {
     left: 0;
 }
 
-.research-content a {
+/* Publications */
+#publications-container {
+    margin-top: 2rem;
+}
+
+.pub-year {
+    font-size: 1.8rem;
     color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 500;
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-light);
+}
+
+.pub-year-group {
+    margin-bottom: 2rem;
+}
+
+.publication-entry {
+    background: var(--bg-light);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--primary-color);
     transition: var(--transition);
 }
 
-.research-content a:hover {
+.publication-entry:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateX(5px);
+}
+
+.pub-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.pub-authors {
+    color: var(--text-light);
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+}
+
+.pub-venue {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+}
+
+.pub-links {
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.pub-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    margin-right: 0.5rem;
+}
+
+.pub-links a:hover {
     color: var(--primary-dark);
     text-decoration: underline;
 }
@@ -224,12 +279,7 @@ main {
     margin-top: 2rem;
 }
 
-.course-list {
-    list-style: none;
-    padding-left: 0;
-}
-
-.course-list li {
+.course-item {
     background: var(--bg-light);
     padding: 1.5rem;
     margin-bottom: 1rem;
@@ -238,16 +288,21 @@ main {
     transition: var(--transition);
 }
 
-.course-list li:hover {
+.course-item:hover {
     box-shadow: var(--shadow-hover);
     transform: translateX(5px);
 }
 
-.course-list strong {
+.course-item strong {
     color: var(--primary-color);
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     display: block;
     margin-bottom: 0.5rem;
+}
+
+.course-item p {
+    margin-bottom: 0;
+    font-size: 0.95rem;
 }
 
 /* People Section */
@@ -259,17 +314,20 @@ main {
     margin-top: 2rem;
 }
 
-.people-list {
+.people-list,
+.collaborators-list {
     list-style: none;
     padding-left: 0;
 }
 
-.people-list li {
+.people-list li,
+.collaborators-list li {
     padding: 0.8rem 0;
     padding-left: 2rem;
     position: relative;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     color: var(--text-light);
+    border-bottom: 1px solid var(--bg-light);
 }
 
 .people-list li:before {
@@ -281,10 +339,31 @@ main {
     left: 0;
 }
 
+.collaborators-list li:before {
+    content: "→";
+    color: var(--primary-color);
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+.prospective-students {
+    background: var(--bg-light);
+    padding: 1.5rem;
+    margin-top: 2rem;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--primary-light);
+}
+
+.prospective-students p {
+    margin-bottom: 0;
+    font-size: 1rem;
+}
+
 /* Contact Section */
 .contact-content {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 2rem;
     margin-top: 2rem;
 }
@@ -299,12 +378,17 @@ main {
 
 .contact-info h3,
 .links h3 {
-    margin-top: 0;
+    margin-top: 1.5rem;
     color: var(--primary-color);
 }
 
+.contact-info h3:first-child,
+.links h3:first-child {
+    margin-top: 0;
+}
+
 .contact-info p {
-    margin-bottom: 0.8rem;
+    margin-bottom: 1rem;
 }
 
 .link-list {
@@ -369,6 +453,10 @@ footer p {
     .contact-content {
         grid-template-columns: 1fr;
     }
+
+    .publication-entry {
+        padding: 1rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -391,5 +479,17 @@ footer p {
 
     .section h3 {
         font-size: 1.3rem;
+    }
+
+    .publication-entry {
+        transform: none;
+    }
+
+    .publication-entry:hover {
+        transform: none;
+    }
+
+    .course-item:hover {
+        transform: none;
     }
 }
