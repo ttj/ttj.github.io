@@ -19,8 +19,8 @@ class BibtexParser {
             .replace(/@STRING\{[^}]+\}/g, '')
             .replace(/%[^\n]*/g, '');
 
-        // Match all BibTeX entries
-        const entryRegex = /@(\w+)\{([^,]+),\s*([\s\S]*?)\n\}/g;
+        // Match all BibTeX entries - improved regex to handle all formats
+        const entryRegex = /@(\w+)\{([^,]+),\s*([\s\S]*?)\n\}/gm;
         let match;
 
         while ((match = entryRegex.exec(cleanedString)) !== null) {
@@ -45,13 +45,91 @@ class BibtexParser {
      */
     parseFields(fieldsString) {
         const fields = {};
-        const fieldRegex = /(\w+)\s*=\s*\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}|(\w+)\s*=\s*"([^"]*)"/g;
-        let match;
 
-        while ((match = fieldRegex.exec(fieldsString)) !== null) {
-            const fieldName = (match[1] || match[3]).toLowerCase();
-            const fieldValue = (match[2] || match[4]).trim();
-            fields[fieldName] = fieldValue;
+        // Split by lines and process each field
+        const lines = fieldsString.split('\n');
+        let currentField = '';
+        let currentValue = '';
+        let inValue = false;
+        let braceDepth = 0;
+        let quoteOpen = false;
+
+        for (let line of lines) {
+            line = line.trim();
+            if (!line) continue;
+
+            // Check if this is a new field assignment
+            const fieldMatch = line.match(/^(\w+)\s*=\s*(.*)$/);
+
+            if (fieldMatch && !inValue) {
+                // Save previous field if exists
+                if (currentField) {
+                    fields[currentField.toLowerCase()] = currentValue.trim();
+                }
+
+                currentField = fieldMatch[1];
+                let value = fieldMatch[2];
+
+                // Check what type of value this is
+                if (value.startsWith('{')) {
+                    inValue = true;
+                    braceDepth = 1;
+                    currentValue = value.substring(1);
+
+                    // Count braces in the rest of the line
+                    for (let char of currentValue) {
+                        if (char === '{') braceDepth++;
+                        if (char === '}') braceDepth--;
+                    }
+
+                    if (braceDepth === 0) {
+                        currentValue = currentValue.substring(0, currentValue.lastIndexOf('}'));
+                        inValue = false;
+                    }
+                } else if (value.startsWith('"')) {
+                    inValue = true;
+                    quoteOpen = true;
+                    currentValue = value.substring(1);
+
+                    if (currentValue.includes('"')) {
+                        currentValue = currentValue.substring(0, currentValue.indexOf('"'));
+                        inValue = false;
+                        quoteOpen = false;
+                    }
+                } else {
+                    // Bare value (like month=feb or doi={...})
+                    currentValue = value.replace(/,$/, '').trim();
+                    inValue = false;
+                }
+            } else if (inValue) {
+                // Continue collecting multi-line value
+                if (quoteOpen) {
+                    currentValue += '\n' + line;
+                    if (line.includes('"')) {
+                        currentValue = currentValue.substring(0, currentValue.indexOf('"'));
+                        inValue = false;
+                        quoteOpen = false;
+                    }
+                } else {
+                    // Handle braces
+                    for (let char of line) {
+                        if (char === '{') braceDepth++;
+                        if (char === '}') braceDepth--;
+                    }
+
+                    if (braceDepth > 0) {
+                        currentValue += '\n' + line;
+                    } else {
+                        currentValue += '\n' + line.substring(0, line.lastIndexOf('}'));
+                        inValue = false;
+                    }
+                }
+            }
+        }
+
+        // Save the last field
+        if (currentField) {
+            fields[currentField.toLowerCase()] = currentValue.trim();
         }
 
         return fields;
@@ -169,7 +247,10 @@ class BibtexParser {
         }
 
         if (fields.doi) {
-            links.push(`<a href="https://doi.org/${fields.doi}" target="_blank">DOI</a>`);
+            const doi = fields.doi.replace(/\{|\}/g, '').trim();
+            if (doi) {
+                links.push(`<a href="https://doi.org/${doi}" target="_blank">DOI</a>`);
+            }
         }
 
         if (fields.url) {
