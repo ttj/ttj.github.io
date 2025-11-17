@@ -14,8 +14,10 @@ class BibtexParser {
     parse(bibtexString) {
         this.entries = [];
 
-        // Remove comments (lines starting with %)
-        const cleanedString = bibtexString.replace(/%[^\n]*/g, '');
+        // Remove comments (lines starting with % or #)
+        let cleanedString = bibtexString.replace(/%[^\n]*/g, '');
+        // Also remove lines that start with # (after optional whitespace)
+        cleanedString = cleanedString.replace(/^[ \t]*#[^\n]*/gm, '');
 
         // Find all entry starts
         const entryStarts = [];
